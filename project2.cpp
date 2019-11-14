@@ -1,7 +1,11 @@
 #include<iostream>
 #include<fstream>
+#include<string>
+#include <stdio.h>
 using namespace std;
-int row,col,B,step=0,zero_num;
+
+int row,col,B,step=0,zero_num=0;
+string filename="temporary.txt";
 
 class vertex{
     public:
@@ -55,7 +59,6 @@ class Queue{
             delete delenode;
         }
         Queuenode getfront(){
-            if(isempty()) return ;
             return *front;
         }
     private:
@@ -64,12 +67,20 @@ class Queue{
 
 class Stacknode{
     public:
-        Stacknode(int i,int j):posi(i),posj(j),next(0){};
+        Stacknode(int i,int j):posi(i),posj(j),next(0),pre(0){};
         void setnext(Stacknode* node){
+            if(node!=NULL)
+                node->setpre(this);          
             next=node;
+        }
+        void setpre(Stacknode *node){
+            pre=node;
         }
         Stacknode* getnext(){
             return this->next;
+        }
+        Stacknode* getpre(){
+            return this->pre;
         }
         int geti(){
             return posi;
@@ -80,6 +91,7 @@ class Stacknode{
     private:
         int posi,posj;
         Stacknode* next;
+        Stacknode *pre;
 };
 
 class Stack{
@@ -100,11 +112,12 @@ class Stack{
         void pop(){
             if(isempty())   return;
             Stacknode *delenode = top;
-            top = top->getnext();
+            top = top->getpre();
             delete delenode;
+            if(top!=NULL)
+                top->setnext(NULL);
         }
         Stacknode gettop(){
-            if(isempty()) return ;
             return *top;
         }
     private:
@@ -115,13 +128,14 @@ void BFS(int i,int j,vertex** map){
     Queue q;
     q.push(i,j);
     map[i][j].visited=1;
+    Queuenode test=q.getfront();
     while(!q.isempty()){
         Queuenode f=q.getfront();
         q.pop();
         i=f.geti();
         j=f.getj();
         //left
-        if(j>0&&map[i][j-1].map==0){
+        if(j>0&&map[i][j-1].map=='0'){
             if(map[i][j-1].visited==0){
                 q.push(i,j-1);
                 map[i][j-1].visited=1;
@@ -129,7 +143,7 @@ void BFS(int i,int j,vertex** map){
             }
         }
         //up
-        if(i>0&&map[i-1][j].map==0){
+        if(i>0&&map[i-1][j].map=='0'){
             if(map[i-1][j].visited==0){
                 q.push(i-1,j);
                 map[i-1][j].visited=1;
@@ -137,7 +151,7 @@ void BFS(int i,int j,vertex** map){
             }
         }
         //right
-        if(j<col-1&&map[i][j+1].map==0){
+        if(j<col-1&&map[i][j+1].map=='0'){
             if(map[i][j+1].visited==0){
                 q.push(i,j+1);
                 map[i][j+1].visited=1;
@@ -145,7 +159,7 @@ void BFS(int i,int j,vertex** map){
             }
         }
         //down
-        if(i<row-1&&map[i+1][j].map==0){
+        if(i<row-1&&map[i+1][j].map=='0'){
             if(map[i+1][j].visited==0){
                 q.push(i+1,j);
                 map[i+1][j].visited=1;
@@ -157,11 +171,13 @@ void BFS(int i,int j,vertex** map){
 
 void path(vertex** map){
     //write to temporary.path
-    ofstream outtem("temporary.path", ios::out); 
-    if (!outtem) {
-        cout << "can't open temporary.path" << endl;
-    }
+    FILE *outtemp;
+    outtemp = fopen("temporary.txt", "a");
 
+    /*ofstream outtem("temporary.path",ios::in|ios::out|ios::app); 
+    if (!outtem){
+        cout << "can't open temporary.path" << endl;
+    }*/
     int length=0,posi,posj,ni,nj,fi,fj,chose=0;
     Stack spath;
     //find the farthest postion
@@ -180,7 +196,7 @@ void path(vertex** map){
     zero_num--;    
     //find the path to farthest position
     if(map[posi][posj].length>0){
-        for(int i=length-1;i>=0;i--){
+        for(int i=length-1;i>0;i--){
             chose=0;
             //left
             if(posj>0){
@@ -188,11 +204,13 @@ void path(vertex** map){
                     ni=posi;
                     nj=posj-1;
                     chose=1;
-                    if(map[posi-1][posj].map=='0'){
+                    if(map[posi][posj-1].map=='0'||map[posi][posj-1].map=='R'){
                         posj=nj;
                         spath.push(ni,nj);
-                        map[ni][nj].map='2';
-                        zero_num--;
+                        if(map[ni][nj].map=='0'){
+                            map[ni][nj].map='2';
+                            zero_num--;
+                        }
                         continue;
                     }
                 }
@@ -204,21 +222,25 @@ void path(vertex** map){
                         ni=posi;
                         nj=posj+1;
                         chose=1;
-                        if(map[posi][posj+1].map=='0'){
+                        if(map[posi][posj+1].map=='0'||map[posi][posj+1].map=='R'){
                             posj=nj;
                             spath.push(ni,nj);
-                            map[ni][nj].map='2';
-                            zero_num--;
+                            if(map[ni][nj].map=='0'){
+                                map[ni][nj].map='2';
+                                zero_num--;
+                            }    
                             continue;
                         }
                     }
-                    else if(map[posi][posj+1].map=='0'){
+                    else if(map[posi][posj+1].map=='0'||map[posi][posj+1].map=='R'){
                         ni=posi;
                         nj=posj+1;
                         posj=nj;
                         spath.push(ni,nj);
-                        map[ni][nj].map='2';
-                        zero_num--;
+                        if(map[ni][nj].map=='0'){
+                            map[ni][nj].map='2';
+                            zero_num--;
+                        }
                         continue;
                     }
                 }
@@ -230,65 +252,75 @@ void path(vertex** map){
                         ni=posi-1;
                         nj=posj;
                         chose=1;
-                        if(map[posi-1][posj].map=='0'){
+                        if(map[posi-1][posj].map=='0'||map[posi-1][posj].map=='R'){
                             posi=ni;
                             spath.push(ni,nj);
-                            map[ni][nj].map='2';
-                            zero_num--;
+                            if(map[ni][nj].map=='0'){
+                                map[ni][nj].map='2';
+                                zero_num--;
+                            } 
                             continue;
                         }
                     }
-                    else if(map[posi-1][posj].map=='0'){
+                    else if(map[posi-1][posj].map=='0'||map[posi-1][posj].map=='R'){
                         ni=posi-1;
                         nj=posj;
                         posi=ni;
                         spath.push(ni,nj);
-                        map[ni][nj].map='2';
-                        zero_num--;
+                        if(map[ni][nj].map=='0'){
+                            map[ni][nj].map='2';
+                            zero_num--;
+                        }
                         continue;
                     }
                 }
             }
             //down
-            if(posj<row-1){
-                if(i==map[posi][posj-1].length&&map[posi][posj-1].map!='1'){
+            if(posi<row-1){
+                if(i==map[posi+1][posj].length&&map[posi+1][posj].map!='1'){
                     if(chose==0){
-                        ni=posi;
-                        nj=posj-1;
+                        ni=posi+1;
+                        nj=posj;
                         chose=1;
-                        if(map[posi][posj-1].map=='0'){
-                            posj=nj;
+                        if(map[posi+1][posj].map=='0'||map[posi+1][posj].map=='R'){
+                            posi=ni;
                             spath.push(ni,nj);
-                            map[ni][nj].map='2';
-                            zero_num--;
+                            if(map[ni][nj].map=='0'){
+                                map[ni][nj].map='2';
+                                zero_num--;
+                            } 
                             continue;
                         }
                     }
-                    else if(map[posi][posj-1].map=='0'){
-                        ni=posi;
-                        nj=posj-1;
-                        posj=nj;
+                    else if(map[posi+1][posj].map=='0'||map[posi+1][posj].map=='R'){
+                        ni=posi+1;
+                        nj=posj;
+                        posi=ni;
                         spath.push(ni,nj);
-                        map[ni][nj].map='2';
-                        zero_num--;
+                        if(map[ni][nj].map=='0'){
+                            map[ni][nj].map='2';
+                            zero_num--;
+                        }
                         continue;
                     }
                 }
             }
+            posi=ni;
+            posj=nj;
+            spath.push(ni,nj);
         }
         //print stack
         while(!spath.isempty()){
             Stacknode st=spath.gettop();
-            outtem<<st.geti<<" "<<st.getj<<endl;
+            fprintf(outtemp,"%d %d\n",st.geti(),st.getj());
+            //outtem<<st.geti()<<" "<<st.getj()<<endl;
             step++;
             spath.pop();
         }
-        Queue qpath;
-        //push the farthest postion to queue        
-        qpath.push(fi,fj);
+        //find the path from farthest position to R 
+        Queue qpath;     
         posi=fi;
-        posj=fj;
-        //find the path from farthest position to R          
+        posj=fj;       
         for(int i=length-1;i>=0;i--){
             chose=0;
             //left
@@ -297,11 +329,13 @@ void path(vertex** map){
                     ni=posi;
                     nj=posj-1;
                     chose=1;
-                    if(map[posi-1][posj].map=='0'){
+                    if(map[posi][posj-1].map=='0'||map[posi][posj-1].map=='R'){
                         posj=nj;
                         qpath.push(ni,nj);
-                        map[ni][nj].map='2';
-                        zero_num--;
+                        if(map[ni][nj].map=='0'){
+                            map[ni][nj].map='2';
+                            zero_num--;
+                        }
                         continue;
                     }
                 }
@@ -313,21 +347,25 @@ void path(vertex** map){
                         ni=posi;
                         nj=posj+1;
                         chose=1;
-                        if(map[posi][posj+1].map=='0'){
+                        if(map[posi][posj+1].map=='0'||map[posi][posj+1].map=='R'){
                             posj=nj;
                             qpath.push(ni,nj);
-                            map[ni][nj].map='2';
-                            zero_num--;
+                            if(map[ni][nj].map=='0'){
+                                map[ni][nj].map='2';
+                                zero_num--;
+                            }
                             continue;
                         }
                     }
-                    else if(map[posi][posj+1].map=='0'){
+                    else if(map[posi][posj+1].map=='0'||map[posi][posj+1].map=='R'){
                         ni=posi;
                         nj=posj+1;
                         posj=nj;
                         qpath.push(ni,nj);
-                        map[ni][nj].map='2';
-                        zero_num--;
+                        if(map[ni][nj].map=='0'){
+                            map[ni][nj].map='2';
+                            zero_num--;
+                        }
                         continue;
                     }
                 }
@@ -339,60 +377,73 @@ void path(vertex** map){
                         ni=posi-1;
                         nj=posj;
                         chose=1;
-                        if(map[posi-1][posj].map=='0'){
+                        if(map[posi-1][posj].map=='0'||map[posi-1][posj].map=='R'){
                             posi=ni;
                             qpath.push(ni,nj);
-                            map[ni][nj].map='2';
-                            zero_num--;
+                            if(map[ni][nj].map=='0'){
+                                map[ni][nj].map='2';
+                                zero_num--;
+                            }
                             continue;
                         }
                     }
-                    else if(map[posi-1][posj].map=='0'){
+                    else if(map[posi-1][posj].map=='0'||map[posi-1][posj].map=='R'){
                         ni=posi-1;
                         nj=posj;
                         posi=ni;
                         qpath.push(ni,nj);
-                        map[ni][nj].map='2';
-                       zero_num--;
-                       continue;
-                    }
-                }
-            }
-            //down
-            if(posj<row-1){
-                if(i==map[posi][posj-1].length&&map[posi][posj-1].map!='1'){
-                    if(chose==0){
-                        ni=posi;
-                        nj=posj-1;
-                        chose=1;
-                        if(map[posi][posj-1].map=='0'){
-                            posj=nj;
-                            qpath.push(ni,nj);
+                        if(map[ni][nj].map=='0'){
                             map[ni][nj].map='2';
                             zero_num--;
-                            continue;
                         }
-                    }
-                    else if(map[posi][posj-1].map=='0'){
-                        ni=posi;
-                        nj=posj-1;
-                        posj=nj;
-                        qpath.push(ni,nj);
-                        map[ni][nj].map='2';
-                        zero_num--;
                         continue;
                     }
                 }
             }
+            //down
+            if(posi<row-1){
+                if(i==map[posi+1][posj].length&&map[posi+1][posj].map!='1'){
+                    if(chose==0){
+                        ni=posi+1;
+                        nj=posj;
+                        chose=1;
+                        if(map[posi+1][posj].map=='0'||map[posi+1][posj].map=='R'){
+                            posi=ni;
+                            qpath.push(ni,nj);
+                            if(map[ni][nj].map=='0'){
+                                map[ni][nj].map='2';
+                                zero_num--;
+                            }
+                            continue;
+                        }
+                    }
+                    else if(map[posi+1][posj].map=='0'||map[posi+1][posj].map=='R'){
+                        ni=posi+1;
+                        nj=posj;
+                        posi=ni;
+                        qpath.push(ni,nj);
+                        if(map[ni][nj].map=='0'){
+                            map[ni][nj].map='2';
+                            zero_num--;
+                        }
+                        continue;
+                    }
+                }
+            }
+            posi=ni;
+            posj=nj;
+            qpath.push(ni,nj);
         }
         //print queue
         while(!qpath.isempty()){
             Queuenode qt=qpath.getfront();
-            outtem<<qt.geti<<" "<<qt.getj<<endl;
+            fprintf(outtemp,"%d %d\n",qt.geti(),qt.getj());
+            //outtem<<qt.geti()<<" "<<qt.getj()<<endl;
             step++;
             qpath.pop();
         }
-    }        
+    }
+    fclose(outtemp);        
 }
 
 int main(){
@@ -403,6 +454,7 @@ int main(){
         cout << "can't open floor.data" << endl;
         return 1;
     }
+
     //write to final.path
     ofstream outF("final.path", ios::out); 
     if (!outF) {
@@ -410,9 +462,9 @@ int main(){
         return 1;
     }
     //read temporary.path
-    ifstream intem("temporary.path", ios::in);
+    ifstream intem("temporary.txt", ios::in);
     if (!intem) {
-        cout << "can't open temporary.path" << endl;
+        cout << "can't open temporary.txt" << endl;
         return 1;
     }
     //cin>>row>>col>>B
@@ -426,13 +478,12 @@ int main(){
         for(int j=0;j<col;j++)
             inF>>map[i][j].map;
     //find R and the number of zero    
-    int ri,rj,zero_num=0;               
+    int ri,rj;               
     for(int i=0;i<row;i++)
         for(int j=0;j<col;j++){
             if(map[i][j].map=='R'){
                 ri=i;
                 rj=j;
-                zero_num++;
             }
             if(map[i][j].map=='0'){
                 zero_num++;
@@ -452,13 +503,18 @@ int main(){
         }
     BFS(ri,rj,map);
     while(zero_num!=0){
-        path(map);    
+        path(map);   
     }
     outF<<step<<endl;
+    outF<<ri<<" "<<rj<<endl;
     int outputi,outputj;
     for(int i=step;i>0;i--){
         intem>>outputi>>outputj;
         outF<<outputi<<" "<<outputj<<endl;
     }
+    inF.close();
+    outF.close();
+    intem.close();
+    remove("temporary.txt");
     return 0;
 }
