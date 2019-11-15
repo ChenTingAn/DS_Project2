@@ -185,7 +185,7 @@ void path(vertex** map){
                 posj=j;
                 fi=i;
                 fj=j;
-            }
+            }     
     //push the farthest postion to stack        
     spath.push(posi,posj);
     map[posi][posj].map='2';
