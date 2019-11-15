@@ -2,7 +2,6 @@
 #include<fstream>
 #include <stdio.h>
 using namespace std;
-
 int row,col,B,step=0,zero_num=0;
 
 class vertex{
@@ -174,10 +173,6 @@ void path(vertex** map){
     if (!outtemp){
         cout << "can't open temporary.txt" << endl;
     }
-    /*fstream outtem("temporary.txt",ios::out|ios::app); 
-    if (!outtem){
-        cout << "can't open temporary.txt" << endl;
-    }*/
 
     int length=0,posi,posj,ni,nj,fi,fj,chose=0;
     Stack spath;
@@ -314,7 +309,6 @@ void path(vertex** map){
         while(!spath.isempty()){
             Stacknode st=spath.gettop();
             fprintf(outtemp,"%d %d\n",st.geti(),st.getj());
-            //outtem<<st.geti()<<" "<<st.getj()<<endl;
             step++;
             spath.pop();
         }
@@ -439,7 +433,6 @@ void path(vertex** map){
         while(!qpath.isempty()){
             Queuenode qt=qpath.getfront();
             fprintf(outtemp,"%d %d\n",qt.geti(),qt.getj());
-            //outtem<<qt.geti()<<" "<<qt.getj()<<endl;
             step++;
             qpath.pop();
         }
