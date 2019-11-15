@@ -1,11 +1,9 @@
 #include<iostream>
 #include<fstream>
-#include<string>
 #include <stdio.h>
 using namespace std;
 
 int row,col,B,step=0,zero_num=0;
-string filename="temporary.txt";
 
 class vertex{
     public:
@@ -173,11 +171,14 @@ void path(vertex** map){
     //write to temporary.path
     FILE *outtemp;
     outtemp = fopen("temporary.txt", "a");
-
-    /*ofstream outtem("temporary.path",ios::in|ios::out|ios::app); 
+    if (!outtemp){
+        cout << "can't open temporary.txt" << endl;
+    }
+    /*fstream outtem("temporary.txt",ios::out|ios::app); 
     if (!outtem){
-        cout << "can't open temporary.path" << endl;
+        cout << "can't open temporary.txt" << endl;
     }*/
+
     int length=0,posi,posj,ni,nj,fi,fj,chose=0;
     Stack spath;
     //find the farthest postion
@@ -443,7 +444,7 @@ void path(vertex** map){
             qpath.pop();
         }
     }
-    fclose(outtemp);        
+    fclose(outtemp);       
 }
 
 int main(){
@@ -454,17 +455,10 @@ int main(){
         cout << "can't open floor.data" << endl;
         return 1;
     }
-
     //write to final.path
     ofstream outF("final.path", ios::out); 
     if (!outF) {
         cout << "can't open final.path" << endl;
-        return 1;
-    }
-    //read temporary.path
-    ifstream intem("temporary.txt", ios::in);
-    if (!intem) {
-        cout << "can't open temporary.txt" << endl;
         return 1;
     }
     //cin>>row>>col>>B
@@ -504,6 +498,12 @@ int main(){
     BFS(ri,rj,map);
     while(zero_num!=0){
         path(map);   
+    }
+    //read temporary.path
+    ifstream intem("temporary.txt", ios::in);
+    if (!intem) {
+        cout << "can't open temporary.txt" << endl;
+        return 1;
     }
     outF<<step<<endl;
     outF<<ri<<" "<<rj<<endl;
