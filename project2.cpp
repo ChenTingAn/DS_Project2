@@ -489,6 +489,11 @@ int main(){
             }    
         }
     BFS(ri,rj,map);
+    FILE *outtem;
+    outtem = fopen("temporary.txt", "w");
+    if (!outtem){
+        cout << "can't open temporary.txt" << endl;
+    }
     while(zero_num!=0){
         path(map);   
     }
@@ -508,6 +513,7 @@ int main(){
     inF.close();
     outF.close();
     intem.close();
+    fclose(outtem);
     remove("temporary.txt");
     return 0;
 }
