@@ -200,13 +200,11 @@ void path(vertex** map){
                     ni=posi;
                     nj=posj-1;
                     chose=1;
-                    if(map[posi][posj-1].map=='0'||map[posi][posj-1].map=='R'){
+                    if(map[posi][posj-1].map=='0'){
                         posj=nj;
                         spath.push(ni,nj);
-                        if(map[ni][nj].map=='0'){
-                            map[ni][nj].map='2';
-                            zero_num--;
-                        }
+                        map[ni][nj].map='2';
+                        zero_num--;
                         continue;
                     }
                 }
@@ -218,25 +216,21 @@ void path(vertex** map){
                         ni=posi;
                         nj=posj+1;
                         chose=1;
-                        if(map[posi][posj+1].map=='0'||map[posi][posj+1].map=='R'){
+                        if(map[posi][posj+1].map=='0'){
                             posj=nj;
                             spath.push(ni,nj);
-                            if(map[ni][nj].map=='0'){
-                                map[ni][nj].map='2';
-                                zero_num--;
-                            }    
+                            map[ni][nj].map='2';
+                            zero_num--; 
                             continue;
                         }
                     }
-                    else if(map[posi][posj+1].map=='0'||map[posi][posj+1].map=='R'){
+                    else if(map[posi][posj+1].map=='0'){
                         ni=posi;
                         nj=posj+1;
                         posj=nj;
                         spath.push(ni,nj);
-                        if(map[ni][nj].map=='0'){
-                            map[ni][nj].map='2';
-                            zero_num--;
-                        }
+                        map[ni][nj].map='2';
+                        zero_num--;
                         continue;
                     }
                 }
@@ -248,25 +242,21 @@ void path(vertex** map){
                         ni=posi-1;
                         nj=posj;
                         chose=1;
-                        if(map[posi-1][posj].map=='0'||map[posi-1][posj].map=='R'){
+                        if(map[posi-1][posj].map=='0'){
                             posi=ni;
                             spath.push(ni,nj);
-                            if(map[ni][nj].map=='0'){
-                                map[ni][nj].map='2';
-                                zero_num--;
-                            } 
+                            map[ni][nj].map='2';
+                            zero_num--;
                             continue;
                         }
                     }
-                    else if(map[posi-1][posj].map=='0'||map[posi-1][posj].map=='R'){
+                    else if(map[posi-1][posj].map=='0'){
                         ni=posi-1;
                         nj=posj;
                         posi=ni;
                         spath.push(ni,nj);
-                        if(map[ni][nj].map=='0'){
-                            map[ni][nj].map='2';
-                            zero_num--;
-                        }
+                        map[ni][nj].map='2';
+                        zero_num--;
                         continue;
                     }
                 }
@@ -278,32 +268,28 @@ void path(vertex** map){
                         ni=posi+1;
                         nj=posj;
                         chose=1;
-                        if(map[posi+1][posj].map=='0'||map[posi+1][posj].map=='R'){
+                        if(map[posi+1][posj].map=='0'){
                             posi=ni;
                             spath.push(ni,nj);
-                            if(map[ni][nj].map=='0'){
-                                map[ni][nj].map='2';
-                                zero_num--;
-                            } 
+                            map[ni][nj].map='2';
+                            zero_num--;
                             continue;
                         }
                     }
-                    else if(map[posi+1][posj].map=='0'||map[posi+1][posj].map=='R'){
+                    else if(map[posi+1][posj].map=='0'){
                         ni=posi+1;
                         nj=posj;
                         posi=ni;
                         spath.push(ni,nj);
-                        if(map[ni][nj].map=='0'){
-                            map[ni][nj].map='2';
-                            zero_num--;
-                        }
+                        map[ni][nj].map='2';
+                        zero_num--;
                         continue;
                     }
                 }
             }
             posi=ni;
             posj=nj;
-            spath.push(ni,nj);
+            spath.push(ni,nj);    //if 4 directions are all visited,then push(ni,nj)
         }
         //print stack
         while(!spath.isempty()){
